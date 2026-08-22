@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charles's Law Solo Calibration Game</title>
+    <title>Charles's Law Balloon Calibration Game</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -20,7 +20,7 @@
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 750px;
+            max-width: 650px;
             width: 100%;
             box-sizing: border-box;
         }
@@ -32,19 +32,121 @@
             font-size: 14px;
             line-height: 1.5;
         }
-        canvas {
+        
+        /* The Lab Station Container Window */
+        .lab-window {
             background: #1e1e24;
             border-radius: 8px;
             width: 100%;
-            height: 280px;
-            display: block;
+            height: 320px;
+            position: relative;
             margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 20px;
+            box-sizing: border-box;
         }
+
+        /* The Water Basin */
+        .basin {
+            width: 320px;
+            height: 60px;
+            background: rgba(43, 108, 176, 0.4);
+            border: 3px solid #2b6cb0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            position: absolute;
+            bottom: 20px;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .water-fill {
+            width: 100%;
+            background: #4299e1;
+            position: absolute;
+            bottom: 0;
+            transition: height 0.1s linear;
+        }
+
+        /* Conical Flask */
+        .flask {
+            width: 0;
+            height: 0;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+            border-bottom: 90px solid rgba(255, 255, 255, 0.15);
+            position: absolute;
+            bottom: 20px;
+            z-index: 2;
+        }
+        .flask::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            left: -12px;
+            top: -24px;
+            border: 2px solid #ffffff;
+            border-bottom: none;
+            box-sizing: border-box;
+        }
+        .flask-border {
+            width: 0;
+            height: 0;
+            border-left: 47px solid transparent;
+            border-right: 47px solid transparent;
+            border-bottom: 92px solid #ffffff;
+            position: absolute;
+            bottom: 19px;
+            z-index: 1;
+        }
+
+        /* Upright Plastic Bottle Sleeve */
+        .bottle-sleeve {
+            width: 130px;
+            height: 220px;
+            border: 4px dashed rgba(255, 255, 255, 0.35);
+            border-bottom: none;
+            position: absolute;
+            bottom: 20px;
+            z-index: 3;
+            border-radius: 4px 4px 0 0;
+        }
+        .bottle-neck {
+            width: 40px;
+            height: 25px;
+            border: 3px solid rgba(255, 255, 255, 0.35);
+            border-bottom: none;
+            position: absolute;
+            bottom: 240px;
+            z-index: 3;
+        }
+
+        /* DYNAMIC BALLOON (Grows and shrinks directly via Javascript) */
+        .balloon {
+            background: #ff3366;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 95px;
+            z-index: 4;
+            transform-origin: bottom center;
+            box-shadow: inset -8px -8px 15px rgba(0,0,0,0.2), 0 0 10px rgba(255,51,102,0.5);
+            transition: width 0.1s ease-out, height 0.1s ease-out;
+        }
+
+        /* Text Labels on Lab Window */
+        .label-vent { color: #fff; position: absolute; bottom: 270px; font-size: 11px; font-weight: bold; }
+        .label-wall { color: rgba(255, 255, 255, 0.4); position: absolute; bottom: 120px; font-size: 11px; }
+
         .controls {
             display: flex;
             flex-direction: column;
             gap: 16px;
             margin-bottom: 24px;
+            width: 100%;
         }
         .control-group {
             display: flex;
@@ -78,7 +180,6 @@
         .status-searching { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 
-        /* Math Panel Styling */
         .formula-panel {
             background: #f0f7ff;
             border-left: 5px solid #0066cc;
@@ -86,22 +187,11 @@
             border-radius: 4px;
             margin-top: 20px;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+            width: 100%;
+            box-sizing: border-box;
         }
-        .formula-title {
-            font-weight: bold;
-            color: #004499;
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-        .equation-box {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 14px;
-            background: white;
-            padding: 14px;
-            border-radius: 6px;
-            border: 1px solid #cce0ff;
-            line-height: 1.7;
-        }
+        .formula-title { font-weight: bold; color: #004499; margin-bottom: 12px; font-size: 16px; }
+        .equation-box { font-family: "Courier New", Courier, monospace; font-size: 14px; background: white; padding: 14px; border-radius: 6px; border: 1px solid #cce0ff; line-height: 1.7; }
     </style>
 </head>
 <body>
@@ -109,10 +199,24 @@
 <div class="container">
     <h2>Charles's Law Solo Calibration Game</h2>
     <div class="description">
-        <strong>The Upright Bottle Challenge:</strong> Change the water basin temperature to expand or contract the gas inside the flask. Calibrate the heat until the balloon perfectly expands to touch the inner walls of the upright plastic constraint!
+        <strong>The Upright Bottle Challenge:</strong> Slide the temperature handle. Watch the balloon expand or shrink based on the heat. Make it hit the dotted lines of the outer sleeve perfectly!
     </div>
     
-    <canvas id="waveCanvas" width="700" height="280"></canvas>
+    <!-- Stable HTML Layout Instead of Canvas Script -->
+    <div class="lab-window">
+        <div class="label-vent">Open Bottle Vent</div>
+        <div class="label-wall" style="left: 40px;">Sleeve Wall ➔</div>
+        <div class="label-wall" style="right: 40px;">&larr; Sleeve Wall</div>
+        
+        <div id="liveBalloon" class="balloon"></div>
+        <div class="flask-border"></div>
+        <div class="flask"></div>
+        <div class="bottle-sleeve"></div>
+        <div class="bottle-neck"></div>
+        <div class="basin">
+            <div id="liveWater" class="water-fill"></div>
+        </div>
+    </div>
     
     <div class="controls">
         <div class="control-group">
@@ -121,7 +225,7 @@
         </div>
         
         <div class="stats">
-            <div>Absolute Temp (T = t + 273.15): <span id="kelvinVal">298.15</span> K</div>
+            <div>Absolute Temp (T): <span id="kelvinVal">298.15</span> K</div>
             <div>Calculated Volume (V): <span id="volumeVal">1.00</span> units</div>
             <div id="statusBox" class="target-alert status-searching">
                 Status: Adjust temperature to make the balloon touch the wall! Target Volume = 1.25 units
@@ -129,130 +233,45 @@
         </div>
     </div>
 
-    <!-- Embedded Mathematical Relationships Panel -->
     <div class="formula-panel">
         <div class="formula-title">📋 Charles's Law Calculation Tracker:</div>
         <div class="equation-box">
             • Baseline State: V₀ = 1.00 unit at t₀ = 25°C (T₀ = 298.15 K)<br>
             • Constant Property: V / T = 1.00 / 298.15 = 0.003354 units/K<br>
-            • Upright Bottle Constrained Target Volume: <span style="color:#d32f2f; font-weight:bold;">1.25 units</span><br>
-            • Live Lab Checking: Current V / T Ratio = <span id="liveConstantVal">0.003354</span> units/K
+            • Target Sleeve Bound Volume: <span style="color:#d32f2f; font-weight:bold;">1.25 units</span><br>
+            • Live Checking: Current V / T Ratio = <span id="liveConstantVal">0.003354</span>
         </div>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('waveCanvas');
-    const ctx = canvas.getContext('2d');
     const tempSlider = document.getElementById('tempSlider'); 
-    
-    // Controlled laboratory physics values
-    const T0_celsius = 25.0;
-    const T0_kelvin = T0_celsius + 273.15;
-    const V0 = 1.00;
-    const charlesConstant = V0 / T0_kelvin; // Fixed physical constant V/T
-    
-    // Game target constraint: The outer bottle wall limits expansion to exactly 1.25 volume units
-    const targetVolume = 1.25; 
-    let pulseTime = 0;
+    const liveBalloon = document.getElementById('liveBalloon');
+    const liveWater = document.getElementById('liveWater');
+    const statusBox = document.getElementById('statusBox');
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // 1. Core Thermodynamic Formulas
+    // Fundamental Physics Constant anchors
+    const charlesConstant = 1.00 / 298.15;
+    const targetVolume = 1.25;
+
+    function updateSimulation() {
         const tCelsius = parseFloat(tempSlider.value);
         const tKelvin = tCelsius + 273.15;
         const currentVolume = charlesConstant * tKelvin;
-        
-        // Update browser readout values dynamically
+
+        // 1. Update text dashboard values
         document.getElementById('tempVal').innerText = tCelsius;
         document.getElementById('kelvinVal').innerText = tKelvin.toFixed(2);
         document.getElementById('volumeVal').innerText = currentVolume.toFixed(2);
         document.getElementById('liveConstantVal').innerText = (currentVolume / tKelvin).toFixed(6);
 
-        // Check target accuracy state
-        const statusBox = document.getElementById('statusBox');
-        if (Math.abs(currentVolume - targetVolume) < 0.015) {
-            statusBox.innerText = `🎉 Success! Target calibration met at ${tCelsius}°C! V = ${currentVolume.toFixed(2)} units.`;
-            statusBox.className = "target-alert status-success";
-        } else {
-            statusBox.innerText = `Status: Adjust temperature to make the balloon touch the wall! Target Volume = 1.25 units`;
-            statusBox.className = "target-alert status-searching";
-        }
+        // 2. Animate Water Level matching the temperature profile
+        const fillPercent = ((tCelsius + 50) / 200) * 100;
+        liveWater.style.height = `${Math.max(15, Math.min(95, fillPercent))}%`;
 
-        // 2. Render刻画 Baseline Apparatus Layout Components
-        const centerX = canvas.width / 2;
-        const baseY = canvas.height - 30;
-
-        // Draw Water Basin Container
-        ctx.fillStyle = '#2b6cb0';
-        ctx.fillRect(centerX - 180, baseY - 50, 360, 50);
+        // 3. PHYSICALLY RESIZE THE BALLOON (Base Size 104px hits the sleeve wall exactly at 1.25 volume)
+        const baseDiameter = 104; 
+        const currentDiameter = baseDiameter * (currentVolume / targetVolume);
         
-        // Draw Dynamic Basin Fluid Fill level shifting based on hot/cold additions
-        ctx.fillStyle = '#4299e1'; 
-        const waterHeight = Math.min(45, 20 + (tCelsius + 50) * 0.15);
-        ctx.fillRect(centerX - 175, baseY - waterHeight, 350, waterHeight);
-
-        // Draw Glass Conical Flask Instrument
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(centerX - 50, baseY);         
-        ctx.lineTo(centerX + 50, baseY);         
-        ctx.lineTo(centerX + 15, baseY - 90);    
-        ctx.lineTo(centerX + 15, baseY - 120);   
-        ctx.lineTo(centerX - 15, baseY - 120);   
-        ctx.lineTo(centerX - 15, baseY - 90);    
-        ctx.closePath();
-        ctx.stroke();
-
-        // Draw Upright Outer Plastic Bottle Sleeve Constraint (Fixed Cylinder Boundary)
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        // Left cylinder bounding wall
-        ctx.moveTo(centerX - 65, baseY);
-        ctx.lineTo(centerX - 65, baseY - 220);
-        // Right cylinder bounding wall
-        ctx.moveTo(centerX + 65, baseY);
-        ctx.lineTo(centerX + 65, baseY - 220);
-        ctx.stroke();
-
-        // Draw Upright Bottle Neck / Open Vent top
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(centerX - 65, baseY - 220);
-        ctx.lineTo(centerX - 20, baseY - 240);
-        ctx.lineTo(centerX - 20, baseY - 255); 
-        ctx.moveTo(centerX + 65, baseY - 220);
-        ctx.lineTo(centerX + 20, baseY - 240);
-        ctx.lineTo(centerX + 20, baseY - 255); 
-        ctx.stroke();
-
-        // 3. Dynamic Interactive Balloon Rendering
-        const maxRadius = 50; // The geometric wall limit setting of the sleeve
-        const currentRadius = Math.min(62, maxRadius * (currentVolume / targetVolume));
-        
-        ctx.fillStyle = '#ff3366';
-        ctx.beginPath();
-        const balloonCenterY = baseY - 165;
-        
-        // Add subtle vibration animation when target is successfully held
-        const targetPulse = (currentVolume >= targetVolume) ? Math.sin(pulseTime) * 1.2 : 0;
-        ctx.arc(centerX, balloonCenterY, currentRadius + targetPulse, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Tie Balloon base tightly to flask lip neck
-        ctx.beginPath();
-        ctx.moveTo(centerX - 15, baseY - 120);
-        ctx.lineTo(centerX - currentRadius * 0.4, balloonCenterY + currentRadius * 0.6);
-        ctx.lineTo(centerX + currentRadius * 0.4, balloonCenterY + currentRadius * 0.6);
-        ctx.lineTo(centerX + 15, baseY - 120);
-        ctx.closePath();
-        ctx.fill();
-
-        // 4. Interface Instruction labels on Canvas
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '12px sans-serif';
-        ctx.fillText("Open Bottle Vent", centerX - 45, baseY - 262);
+        liveBalloon.style.width = `${currentDiameter}px`;
+        liveBalloon.style.height = `${currentDiameter}px`;
