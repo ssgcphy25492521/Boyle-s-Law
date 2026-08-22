@@ -25,7 +25,7 @@
             box-sizing: border-box;
             text-align: center;
         }
-        h1 {
+        <h1> {
             margin-top: 0;
             color: #111;
             font-size: 28px;
@@ -57,8 +57,8 @@
             transform-origin: center center;
             box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3), 0 0 15px rgba(255,51,102,0.4);
             transition: width 0.05s ease-out, height 0.05s ease-out;
-            width: 120px;  /* Changed by slider */
-            height: 120px; /* Changed by slider */
+            width: 160px;  /* Changed by slider */
+            height: 160px; /* Changed by slider */
         }
 
         .controls {
@@ -115,8 +115,9 @@
     
     <div class="controls">
         <div class="control-group">
+            <!-- Constrained temperature range from 10 to 25, starting defaulted at 25 -->
             <label for="tempSlider">Temperature (t): <span id="tempVal">25</span> °C</label>
-            <input type="range" id="tempSlider" min="25" max="70" step="1" value="25">
+            <input type="range" id="tempSlider" min="10" max="25" step="1" value="25">
         </div>
         
         <div class="stats">
@@ -133,7 +134,7 @@
     const kelvinVal = document.getElementById('kelvinVal');
     const volumeVal = document.getElementById('volumeVal');
 
-    // Baseline calculation values: 1.00 unit of volume at 25°C (298.15K)
+    // Baseline calculation anchor points: 1.00 unit of volume at 25°C (298.15K)
     const T0 = 25 + 273.15;
     const V0 = 1.00;
     const charlesConstant = V0 / T0; // Constant V/T ratio
@@ -145,15 +146,15 @@
         // Calculate the theoretical volume based on V = constant * T
         const currentVolume = charlesConstant * tKelvin;
 
-        // 1. Update text fields on screen
+        // 1. Update numerical dashboard texts
         tempVal.innerText = tCelsius;
         kelvinVal.innerText = tKelvin.toFixed(2);
         volumeVal.innerText = currentVolume.toFixed(2);
 
         // 2. Physically resize the balloon graphic
-        // At 25°C, volume is 1.00 unit and diameter is 120px. 
-        // At 70°C, volume expands proportionally to ~1.15 units, scaling the diameter up cleanly.
-        const baseDiameter = 120; 
+        // At 25°C, volume is exactly 1.00 unit and diameter is 160px.
+        // At 10°C, volume drops proportionally to ~0.95 units, shrinking the balloon.
+        const baseDiameter = 160; 
         const currentDiameter = baseDiameter * currentVolume;
         
         liveBalloon.style.width = `${currentDiameter}px`;
@@ -167,5 +168,5 @@
     updateSimulation();
 </script>
 
-</body>
+</head>
 </html>
