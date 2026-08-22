@@ -152,7 +152,7 @@
     const V0 = 1.00;
     const charlesConstant = V0 / T0_kelvin; // Fixed physical constant V/T
     
-    // Game target constraint: The outer bottle wall limits loop expansion to exactly 1.25 volume units
+    // Game target constraint: The outer bottle wall limits expansion to exactly 1.25 volume units
     const targetVolume = 1.25; 
     let pulseTime = 0;
 
@@ -180,7 +180,7 @@
             statusBox.className = "target-alert status-searching";
         }
 
-        // 2. Render Apparatus Baseline Layout Components
+        // 2. Render刻画 Baseline Apparatus Layout Components
         const centerX = canvas.width / 2;
         const baseY = canvas.height - 30;
 
@@ -209,7 +209,6 @@
         // Draw Upright Outer Plastic Bottle Sleeve Constraint (Fixed Cylinder Boundary)
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
         ctx.lineWidth = 4;
-        ctx.setLineDash([6, 6]); // Dashed lines indicating target bounds
         ctx.beginPath();
         // Left cylinder bounding wall
         ctx.moveTo(centerX - 65, baseY);
@@ -218,7 +217,6 @@
         ctx.moveTo(centerX + 65, baseY);
         ctx.lineTo(centerX + 65, baseY - 220);
         ctx.stroke();
-        ctx.setLineDash([]); // Reset drawing brushes to solid line
 
         // Draw Upright Bottle Neck / Open Vent top
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
@@ -254,3 +252,7 @@
         ctx.closePath();
         ctx.fill();
 
+        // 4. Interface Instruction labels on Canvas
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px sans-serif';
+        ctx.fillText("Open Bottle Vent", centerX - 45, baseY - 262);
