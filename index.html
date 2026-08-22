@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charles's Law Balloon Calibration Game</title>
+    <title>Charles's Law</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -17,229 +17,111 @@
         }
         .container {
             background: white;
-            padding: 24px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 650px;
+            max-width: 500px;
             width: 100%;
             box-sizing: border-box;
-        }
-        h2 { margin-top: 0; color: #111; text-align: center; }
-        .description {
             text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+            color: #111;
+            font-size: 28px;
+        }
+        .description {
             color: #555;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-size: 14px;
             line-height: 1.5;
         }
         
-        /* The Lab Station Container Window */
-        .lab-window {
+        /* Interactive visual display area */
+        .display-box {
             background: #1e1e24;
             border-radius: 8px;
             width: 100%;
-            height: 320px;
+            height: 250px;
             position: relative;
-            margin-bottom: 20px;
-            overflow: hidden;
+            margin-bottom: 25px;
             display: flex;
             justify-content: center;
-            align-items: flex-end;
-            padding-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        /* The Water Basin */
-        .basin {
-            width: 320px;
-            height: 60px;
-            background: rgba(43, 108, 176, 0.4);
-            border: 3px solid #2b6cb0;
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            position: absolute;
-            bottom: 20px;
-            z-index: 1;
-            overflow: hidden;
-        }
-        .water-fill {
-            width: 100%;
-            background: #4299e1;
-            position: absolute;
-            bottom: 0;
-            transition: height 0.1s linear;
-        }
-
-        /* Conical Flask */
-        .flask {
-            width: 0;
-            height: 0;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-bottom: 90px solid rgba(255, 255, 255, 0.15);
-            position: absolute;
-            bottom: 20px;
-            z-index: 2;
-        }
-        .flask::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 25px;
-            background: rgba(255, 255, 255, 0.15);
-            left: -12px;
-            top: -24px;
-            border: 2px solid #ffffff;
-            border-bottom: none;
-            box-sizing: border-box;
-        }
-        .flask-border {
-            width: 0;
-            height: 0;
-            border-left: 47px solid transparent;
-            border-right: 47px solid transparent;
-            border-bottom: 92px solid #ffffff;
-            position: absolute;
-            bottom: 19px;
-            z-index: 1;
-        }
-
-        /* Upright Plastic Bottle Sleeve */
-        .bottle-sleeve {
-            width: 130px;
-            height: 220px;
-            border: 4px dashed rgba(255, 255, 255, 0.35);
-            border-bottom: none;
-            position: absolute;
-            bottom: 20px;
-            z-index: 3;
-            border-radius: 4px 4px 0 0;
-        }
-        .bottle-neck {
-            width: 40px;
-            height: 25px;
-            border: 3px solid rgba(255, 255, 255, 0.35);
-            border-bottom: none;
-            position: absolute;
-            bottom: 240px;
-            z-index: 3;
+            align-items: center;
         }
 
         /* DYNAMIC BALLOON (Grows and shrinks directly via Javascript) */
         .balloon {
             background: #ff3366;
             border-radius: 50%;
-            position: absolute;
-            bottom: 95px;
-            z-index: 4;
-            transform-origin: bottom center;
-            box-shadow: inset -8px -8px 15px rgba(0,0,0,0.2), 0 0 10px rgba(255,51,102,0.5);
-            transition: width 0.1s ease-out, height 0.1s ease-out;
+            transform-origin: center center;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3), 0 0 15px rgba(255,51,102,0.4);
+            transition: width 0.05s ease-out, height 0.05s ease-out;
+            width: 120px;  /* Changed by slider */
+            height: 120px; /* Changed by slider */
         }
-
-        /* Text Labels on Lab Window */
-        .label-vent { color: #fff; position: absolute; bottom: 270px; font-size: 11px; font-weight: bold; }
-        .label-wall { color: rgba(255, 255, 255, 0.4); position: absolute; bottom: 120px; font-size: 11px; }
 
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 20px;
             width: 100%;
         }
         .control-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            text-align: left;
         }
-        label { font-weight: 600; font-size: 15px; }
+        label { 
+            font-weight: 600; 
+            font-size: 16px; 
+        }
         input[type="range"] {
             width: 100%;
             cursor: pointer;
         }
+        
+        /* Stats Dashboard block */
         .stats {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             background: #f8f9fa;
             padding: 14px;
             border-radius: 8px;
             font-size: 15px;
             border: 1px solid #e2e8f0;
+            text-align: left;
         }
-        .stats div span { font-weight: bold; color: #0066cc; }
-        .target-alert {
-            grid-column: span 2;
-            text-align: center;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
+        .stats div span { 
+            font-weight: bold; 
+            color: #0066cc; 
         }
-        .status-searching { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-
-        .formula-panel {
-            background: #f0f7ff;
-            border-left: 5px solid #0066cc;
-            padding: 18px;
-            border-radius: 4px;
-            margin-top: 20px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .formula-title { font-weight: bold; color: #004499; margin-bottom: 12px; font-size: 16px; }
-        .equation-box { font-family: "Courier New", Courier, monospace; font-size: 14px; background: white; padding: 14px; border-radius: 6px; border: 1px solid #cce0ff; line-height: 1.7; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Charles's Law Solo Calibration Game</h2>
+    <h1>Charles's Law</h1>
     <div class="description">
-        <strong>The Upright Bottle Challenge:</strong> Slide the temperature handle. Watch the balloon expand or shrink based on the heat. Make it hit the dotted lines of the outer sleeve perfectly!
+        According to Charles's Law, the volume of a gas is directly proportional to its absolute temperature when pressure is held constant (V &propto; T).
     </div>
     
-    <!-- Stable HTML Layout Instead of Canvas Script -->
-    <div class="lab-window">
-        <div class="label-vent">Open Bottle Vent</div>
-        <div class="label-wall" style="left: 40px;">Sleeve Wall ➔</div>
-        <div class="label-wall" style="right: 40px;">&larr; Sleeve Wall</div>
-        
+    <!-- Visual display area holding the resizing balloon -->
+    <div class="display-box">
         <div id="liveBalloon" class="balloon"></div>
-        <div class="flask-border"></div>
-        <div class="flask"></div>
-        <div class="bottle-sleeve"></div>
-        <div class="bottle-neck"></div>
-        <div class="basin">
-            <div id="liveWater" class="water-fill"></div>
-        </div>
     </div>
     
     <div class="controls">
         <div class="control-group">
-            <label for="tempSlider">Basin Water Temperature (t): <span id="tempVal">25</span> °C</label>
-            <input type="range" id="tempSlider" min="-50" max="150" step="1" value="25">
+            <label for="tempSlider">Temperature (t): <span id="tempVal">25</span> °C</label>
+            <input type="range" id="tempSlider" min="25" max="70" step="1" value="25">
         </div>
         
         <div class="stats">
             <div>Absolute Temp (T): <span id="kelvinVal">298.15</span> K</div>
-            <div>Calculated Volume (V): <span id="volumeVal">1.00</span> units</div>
-            <div id="statusBox" class="target-alert status-searching">
-                Status: Adjust temperature to make the balloon touch the wall! Target Volume = 1.25 units
-            </div>
-        </div>
-    </div>
-
-    <div class="formula-panel">
-        <div class="formula-title">📋 Charles's Law Calculation Tracker:</div>
-        <div class="equation-box">
-            • Baseline State: V₀ = 1.00 unit at t₀ = 25°C (T₀ = 298.15 K)<br>
-            • Constant Property: V / T = 1.00 / 298.15 = 0.003354 units/K<br>
-            • Target Sleeve Bound Volume: <span style="color:#d32f2f; font-weight:bold;">1.25 units</span><br>
-            • Live Checking: Current V / T Ratio = <span id="liveConstantVal">0.003354</span>
+            <div>Relative Volume (V): <span id="volumeVal">1.00</span> units</div>
         </div>
     </div>
 </div>
@@ -247,31 +129,43 @@
 <script>
     const tempSlider = document.getElementById('tempSlider'); 
     const liveBalloon = document.getElementById('liveBalloon');
-    const liveWater = document.getElementById('liveWater');
-    const statusBox = document.getElementById('statusBox');
+    const tempVal = document.getElementById('tempVal');
+    const kelvinVal = document.getElementById('kelvinVal');
+    const volumeVal = document.getElementById('volumeVal');
 
-    // Fundamental Physics Constant anchors
-    const charlesConstant = 1.00 / 298.15;
-    const targetVolume = 1.25;
+    // Baseline calculation values: 1.00 unit of volume at 25°C (298.15K)
+    const T0 = 25 + 273.15;
+    const V0 = 1.00;
+    const charlesConstant = V0 / T0; // Constant V/T ratio
 
     function updateSimulation() {
-        const tCelsius = parseFloat(tempSlider.value);
+        const tCelsius = parseInt(tempSlider.value, 10);
         const tKelvin = tCelsius + 273.15;
+        
+        // Calculate the theoretical volume based on V = constant * T
         const currentVolume = charlesConstant * tKelvin;
 
-        // 1. Update text dashboard values
-        document.getElementById('tempVal').innerText = tCelsius;
-        document.getElementById('kelvinVal').innerText = tKelvin.toFixed(2);
-        document.getElementById('volumeVal').innerText = currentVolume.toFixed(2);
-        document.getElementById('liveConstantVal').innerText = (currentVolume / tKelvin).toFixed(6);
+        // 1. Update text fields on screen
+        tempVal.innerText = tCelsius;
+        kelvinVal.innerText = tKelvin.toFixed(2);
+        volumeVal.innerText = currentVolume.toFixed(2);
 
-        // 2. Animate Water Level matching the temperature profile
-        const fillPercent = ((tCelsius + 50) / 200) * 100;
-        liveWater.style.height = `${Math.max(15, Math.min(95, fillPercent))}%`;
-
-        // 3. PHYSICALLY RESIZE THE BALLOON (Base Size 104px hits the sleeve wall exactly at 1.25 volume)
-        const baseDiameter = 104; 
-        const currentDiameter = baseDiameter * (currentVolume / targetVolume);
+        // 2. Physically resize the balloon graphic
+        // At 25°C, volume is 1.00 unit and diameter is 120px. 
+        // At 70°C, volume expands proportionally to ~1.15 units, scaling the diameter up cleanly.
+        const baseDiameter = 120; 
+        const currentDiameter = baseDiameter * currentVolume;
         
         liveBalloon.style.width = `${currentDiameter}px`;
         liveBalloon.style.height = `${currentDiameter}px`;
+    }
+
+    // Attach real-time input event listeners to the slider
+    tempSlider.addEventListener('input', updateSimulation);
+    
+    // Run once on load to establish baseline positions
+    updateSimulation();
+</script>
+
+</body>
+</html>
