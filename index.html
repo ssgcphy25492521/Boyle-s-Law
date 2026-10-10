@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boyle's Law Simulation</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #0f172a;
@@ -18,17 +21,16 @@
         }
         .container {
             background: #1e293b;
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 480px;
             width: 100%;
-            box-sizing: border-box;
             text-align: center;
             border: 1px solid #334155;
         }
         h1 {
-            margin-top: 0;
+            margin: 0 0 10px 0;
             color: #f1f5f9;
             font-size: 26px;
         }
@@ -39,12 +41,12 @@
             line-height: 1.5;
         }
         
-        /* Interactive display container */
+        /* Interactive display box */
         .display-box {
             background: #090d16;
             border-radius: 12px;
             width: 100%;
-            height: 280px;
+            height: 260px;
             position: relative;
             margin-bottom: 20px;
             display: flex;
@@ -54,7 +56,6 @@
             border: 1px solid #334155;
         }
 
-        /* Particle simulation canvas (Background) */
         #particleCanvas {
             position: absolute;
             top: 0;
@@ -64,7 +65,7 @@
             z-index: 1;
         }
 
-        /* GUARANTEED VISIBLE GOLDEN BALLOON (Foreground) */
+        /* Golden Balloon Graphic */
         .balloon-wrapper {
             position: relative;
             z-index: 2;
@@ -81,7 +82,7 @@
             box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset -10px -10px 20px rgba(0, 0, 0, 0.5);
             width: 130px;
             height: 130px;
-            transition: width 0.08s ease-out, height 0.08s ease-out;
+            transition: width 0.05s ease-out, height 0.05s ease-out;
         }
 
         .balloon-knot {
@@ -96,7 +97,7 @@
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
             width: 100%;
         }
         .control-group {
@@ -125,7 +126,7 @@
             background: #334155;
             color: #f8fafc;
             border: 1px solid #475569;
-            padding: 8px 4px;
+            padding: 8px 2px;
             border-radius: 6px;
             font-size: 12px;
             cursor: pointer;
@@ -159,3 +160,129 @@
 <div class="container">
     <h1>Boyle's Law</h1>
     <div class="description">
+        According to Boyle's Law, volume is inversely proportional to pressure when temperature is constant ($P_1 V_1 = P_2 V_2$). Higher external pressure compresses the balloon, while lower pressure lets it expand.
+    </div>
+    
+    <div class="display-box" id="displayBox">
+        <canvas id="particleCanvas"></canvas>
+        <div class="balloon-wrapper">
+            <div id="liveBalloon" class="balloon"></div>
+            <div class="balloon-knot"></div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="pressureSlider">Pressure (P): <span id="pressureVal">1.00</span> atm</label>
+            <input type="range" id="pressureSlider" min="0.20" max="5.00" step="0.05" value="1.00">
+        </div>
+
+        <div class="presets">
+            <button class="preset-btn" onclick="setPressure(0.25)">Vacuum</button>
+            <button class="preset-btn" onclick="setPressure(0.50)">High Alt.</button>
+            <button class="preset-btn" onclick="setPressure(1.00)">Sea Level</button>
+            <button class="preset-btn" onclick="setPressure(4.00)">Deep Sea</button>
+        </div>
+        
+        <div class="stats">
+            <div>Volume (V): <span id="volumeVal">1.00</span> units</div>
+            <div>Constant ($P \times V$): <span id="constantVal">1.00</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const pressureSlider = document.getElementById('pressureSlider'); 
+    const liveBalloon = document.getElementById('liveBalloon');
+    const pressureVal = document.getElementById('pressureVal');
+    const volumeVal = document.getElementById('volumeVal');
+    const constantVal = document.getElementById('constantVal');
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    const displayBox = document.getElementById('displayBox');
+
+    const baseDiameter = 130; 
+    let currentDiameter = baseDiameter;
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = displayBox.clientWidth || 430;
+        canvas.height = displayBox.clientHeight || 260;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < 70; i++) {
+        particles.push({
+            x: Math.random() * (canvas.width || 400),
+            y: Math.random() * (canvas.height || 250),
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            radius: 2.5
+        });
+    }
+
+    function setPressure(val) {
+        pressureSlider.value = val;
+        updateSimulation();
+    }
+
+    function updateSimulation() {
+        const P = parseFloat(pressureSlider.value);
+        const V = 1.0 / P;
+        const PV = P * V;
+
+        pressureVal.innerText = P.toFixed(2);
+        volumeVal.innerText = V.toFixed(2);
+        constantVal.innerText = PV.toFixed(2);
+
+        currentDiameter = baseDiameter * Math.cbrt(V);
+        liveBalloon.style.width = `${currentDiameter.toFixed(1)}px`;
+        liveBalloon.style.height = `${currentDiameter.toFixed(1)}px`;
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const P = parseFloat(pressureSlider.value);
+        const speedMultiplier = Math.sqrt(P);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const balloonRadius = currentDiameter / 2 + 4;
+
+        ctx.fillStyle = '#64748b';
+
+        particles.forEach(p => {
+            p.x += p.vx * speedMultiplier;
+            p.y += p.vy * speedMultiplier;
+
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+            const dx = p.x - cx;
+            const dy = p.y - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < balloonRadius) {
+                const angle = Math.atan2(dy, dx);
+                p.x = cx + Math.cos(angle) * balloonRadius;
+                p.y = cy + Math.sin(angle) * balloonRadius;
+                p.vx *= -1;
+                p.vy *= -1;
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animateParticles);
+    }
+
+    pressureSlider.addEventListener('input', updateSimulation);
+    updateSimulation();
+    animateParticles();
+</script>
+
+</body>
+</html>
