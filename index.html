@@ -1,172 +1,678 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-slate-950">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charles's Law</title>
+    <title>Boyle's Law Simulation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#fffbeb',
+                            200: '#fef3c7',
+                            300: '#fde68a',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        <h1> {
-            margin-top: 0;
-            color: #111;
-            font-size: 28px;
-        }
-        .description {
-            color: #555;
-            margin-bottom: 25px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        /* Interactive visual display area */
-        .display-box {
-            background: #1e1e24;
-            border-radius: 8px;
-            width: 100%;
-            height: 250px;
-            position: relative;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* DYNAMIC BALLOON (Grows and shrinks directly via Javascript) */
-        .balloon {
-            background: #ff3366;
+        /* Custom golden sheen slider styles */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
             border-radius: 50%;
-            transform-origin: center center;
-            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3), 0 0 15px rgba(255,51,102,0.4);
-            transition: width 0.05s ease-out, height 0.05s ease-out;
-            width: 160px;  /* Changed by slider */
-            height: 160px; /* Changed by slider */
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            text-align: left;
-        }
-        label { 
-            font-weight: 600; 
-            font-size: 16px; 
-        }
-        input[type="range"] {
-            width: 100%;
+            background: radial-gradient(circle at 30% 30%, #fff8d0, #ffd700, #b8860b);
             cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 0 2px 4px rgba(0,0,0,0.5);
+            border: 2px solid #ffffff;
+            margin-top: -8px;
         }
-        
-        /* Stats Dashboard block */
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: #f8f9fa;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 15px;
-            border: 1px solid #e2e8f0;
-            text-align: left;
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 9999px;
         }
-        .stats div span { 
-            font-weight: bold; 
-            color: #0066cc; 
+        input[type=range]:focus {
+            outline: none;
         }
     </style>
 </head>
-<body>
+<body class="min-h-full text-slate-100 flex flex-col justify-between bg-slate-950 selection:bg-amber-500 selection:text-slate-950">
 
-<div class="container">
-    <h1>Charles's Law</h1>
-    <div class="description">
-        According to Charles's Law, the volume of a gas is directly proportional to its absolute temperature when pressure is held constant (V &propto; T).
-    </div>
-    
-    <!-- Visual display area holding the resizing balloon -->
-    <div class="display-box">
-        <div id="liveBalloon" class="balloon"></div>
-    </div>
-    
-    <div class="controls">
-        <div class="control-group">
-            <!-- Constrained temperature range from 10 to 25, starting defaulted at 25 -->
-            <label for="tempSlider">Temperature (t): <span id="tempVal">25</span> °C</label>
-            <input type="range" id="tempSlider" min="10" max="25" step="1" value="25">
+    <!-- Main Outer Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow flex flex-col gap-8">
+        
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        Gas Laws Physics
+                    </span>
+                    <span class="text-xs text-slate-400 font-mono">P &propto; 1/V</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                    Boyle's Law <span class="bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500 bg-clip-text text-transparent">Simulation</span>
+                </h1>
+            </div>
+            
+            <!-- Mathematical Formula Badge -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 shadow-lg flex items-center gap-4">
+                <div class="text-right">
+                    <div class="text-xs text-slate-400 font-medium">Boyle's Formula</div>
+                    <div class="text-lg font-mono font-bold text-amber-400">P<sub>1</sub>V<sub>1</sub> = P<sub>2</sub>V<sub>2</sub></div>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-xs text-slate-400 max-w-[140px] leading-tight">
+                    Constant Temp (T) &amp; Gas Amount (n)
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Interactive Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- LEFT COLUMN: Canvas Simulation Display & Slider Controls (7 cols) -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                
+                <!-- Simulation Box Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col">
+                    
+                    <!-- Canvas Top Bar Info -->
+                    <div class="flex justify-between items-center mb-3 text-xs text-slate-400 z-10">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span class="font-medium text-slate-300">Golden Gas Balloon Chamber</span>
+                        </div>
+                        <div class="font-mono text-amber-300/80 bg-amber-950/40 px-2 py-1 rounded border border-amber-800/30">
+                            Particles: <span id="particleCountText">50</span> | Pressure Vectors Active
+                        </div>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div class="relative w-full h-[320px] sm:h-[380px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center">
+                        <canvas id="simCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+                        
+                        <!-- Visual Overlay Legend / Pressure Force Hint -->
+                        <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-[11px] text-slate-300 flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-sky-400/60 border border-sky-300"></div>
+                            <span>External Colliding Gas Molecules</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls Container -->
+                    <div class="mt-6 flex flex-col gap-5">
+                        
+                        <!-- Primary Pressure Slider Control -->
+                        <div class="flex flex-col gap-2 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+                            <div class="flex justify-between items-center">
+                                <label for="pressureSlider" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                                    External Pressure (P)
+                                </label>
+                                <div class="text-right">
+                                    <span id="sliderPressureVal" class="text-2xl font-bold font-mono text-amber-400">1.00</span>
+                                    <span class="text-xs text-amber-400/80 font-semibold ml-0.5">atm</span>
+                                    <span class="text-xs text-slate-500 font-mono ml-2">(<span id="sliderKpaVal">101.3</span> kPa)</span>
+                                </div>
+                            </div>
+
+                            <input type="range" id="pressureSlider" min="0.25" max="3.00" step="0.05" value="1.00" class="w-full my-1">
+
+                            <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+                                <span>0.25 atm (Low Pressure / Expansion)</span>
+                                <span>1.00 atm</span>
+                                <span>3.00 atm (High Pressure / Compression)</span>
+                            </div>
+                        </div>
+
+                        <!-- Presets Quick Buttons -->
+                        <div>
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Quick Environment Presets</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <button onclick="setPressurePreset(0.30)" class="preset-btn bg-slate-800/80 hover:bg-slate-700/80 active:bg-amber-600/30 text-slate-200 hover:text-amber-300 border border-slate-700/60 rounded-lg p-2.5 text-xs text-left transition flex flex-col gap-1 group">
+                                    <span class="font-bold flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 001-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                                        High Altitude
+                                    </span>
+                                    <span class="text-[11px] text-slate-400 group-hover:text-slate-300">0.30 atm &bull; High expansion</span>
+                                </button>
+
+                                <button onclick="setPressurePreset(1.00)" class="preset-btn bg-slate-800/80 hover:bg-slate-700/80 active:bg-amber-600/30 text-slate-200 hover:text-amber-300 border border-slate-700/60 rounded-lg p-2.5 text-xs text-left transition flex flex-col gap-1 group">
+                                    <span class="font-bold flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11a2 2 0 012-2h1.055"></path></svg>
+                                        Sea Level
+                                    </span>
+                                    <span class="text-[11px] text-slate-400 group-hover:text-slate-300">1.00 atm &bull; Standard baseline</span>
+                                </button>
+
+                                <button onclick="setPressurePreset(2.50)" class="preset-btn bg-slate-800/80 hover:bg-slate-700/80 active:bg-amber-600/30 text-slate-200 hover:text-amber-300 border border-slate-700/60 rounded-lg p-2.5 text-xs text-left transition flex flex-col gap-1 group">
+                                    <span class="font-bold flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                                        Deep Underwater
+                                    </span>
+                                    <span class="text-[11px] text-slate-400 group-hover:text-slate-300">2.50 atm &bull; Heavy compression</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: Real-Time Stats & Interactive Graph (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <!-- Numerical Dashboard Grid -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
+                        <span>Live Physics Dashboard</span>
+                        <span class="text-xs font-mono font-normal text-amber-400/80 bg-amber-500/10 px-2 py-0.5 rounded">T = 298.15 K</span>
+                    </h2>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        
+                        <!-- Pressure Metric -->
+                        <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                            <span class="text-xs text-slate-400 font-medium">Pressure (P)</span>
+                            <div class="mt-2">
+                                <span id="dashP" class="text-2xl font-bold font-mono text-sky-400">1.00</span>
+                                <span class="text-xs text-sky-400/80 font-semibold">atm</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 font-mono mt-1" id="dashKpa">101.33 kPa</span>
+                        </div>
+
+                        <!-- Volume Metric -->
+                        <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                            <span class="text-xs text-slate-400 font-medium">Calculated Volume (V)</span>
+                            <div class="mt-2">
+                                <span id="dashV" class="text-2xl font-bold font-mono text-amber-400">1.00</span>
+                                <span class="text-xs text-amber-400/80 font-semibold">units</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 font-mono mt-1">V &propto; 1/P</span>
+                        </div>
+
+                        <!-- Temperature Metric -->
+                        <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                            <span class="text-xs text-slate-400 font-medium">Temperature (T)</span>
+                            <div class="mt-2">
+                                <span class="text-xl font-bold font-mono text-emerald-400">298.15</span>
+                                <span class="text-xs text-emerald-400/80 font-semibold">K</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 font-mono mt-1">25.00 &deg;C (Constant)</span>
+                        </div>
+
+                        <!-- Boyle's Constant Metric -->
+                        <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                            <span class="text-xs text-slate-400 font-medium">Boyle's Constant (k)</span>
+                            <div class="mt-2">
+                                <span id="dashK" class="text-xl font-bold font-mono text-purple-400">1.00</span>
+                                <span class="text-xs text-purple-400/80 font-semibold">atm&middot;V</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 font-mono mt-1">P &times; V Verification</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Live P vs V Graph Box -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">P - V Hyperbolic Curve</h3>
+                        <span class="text-[11px] text-amber-400 font-mono">Inverse Relationship</span>
+                    </div>
+
+                    <div class="relative w-full h-[180px] bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                        <canvas id="graphCanvas" class="w-full h-full block"></canvas>
+                    </div>
+                </div>
+
+                <!-- Concept Card -->
+                <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-5 text-xs text-slate-300 leading-relaxed space-y-2">
+                    <div class="font-bold text-amber-400 text-sm flex items-center gap-1.5 mb-1">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Physics Insight
+                    </div>
+                    <p>
+                        <strong>Boyle's Law</strong> dictates that for a fixed amount of gas at constant temperature, the gas volume shrinks as surrounding pressure rises because gas molecules are compressed closer together.
+                    </p>
+                    <p class="text-slate-400">
+                        Notice how the balloon's diameter scales strictly with the 3D cube root of volume (<code class="text-amber-300 font-mono">&radic;&sup3;V</code>), accurately mirroring real physical displacement!
+                    </p>
+                </div>
+
+            </div>
+
         </div>
-        
-        <div class="stats">
-            <div>Absolute Temp (T): <span id="kelvinVal">298.15</span> K</div>
-            <div>Relative Volume (V): <span id="volumeVal">1.00</span> units</div>
-        </div>
+
     </div>
-</div>
 
-<script>
-    const tempSlider = document.getElementById('tempSlider'); 
-    const liveBalloon = document.getElementById('liveBalloon');
-    const tempVal = document.getElementById('tempVal');
-    const kelvinVal = document.getElementById('kelvinVal');
-    const volumeVal = document.getElementById('volumeVal');
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-600">
+        Boyle's Law Interactive Physics &bull; Golden Balloon Gas Simulation
+    </footer>
 
-    // Baseline calculation anchor points: 1.00 unit of volume at 25°C (298.15K)
-    const T0 = 25 + 273.15;
-    const V0 = 1.00;
-    const charlesConstant = V0 / T0; // Constant V/T ratio
+    <script>
+        // Canvas & Context Setup
+        const simCanvas = document.getElementById('simCanvas');
+        const simCtx = simCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphCtx = graphCanvas.getContext('2d');
 
-    function updateSimulation() {
-        const tCelsius = parseInt(tempSlider.value, 10);
-        const tKelvin = tCelsius + 273.15;
-        
-        // Calculate the theoretical volume based on V = constant * T
-        const currentVolume = charlesConstant * tKelvin;
+        // Input Elements
+        const pressureSlider = document.getElementById('pressureSlider');
+        const sliderPressureVal = document.getElementById('sliderPressureVal');
+        const sliderKpaVal = document.getElementById('sliderKpaVal');
+        const particleCountText = document.getElementById('particleCountText');
 
-        // 1. Update numerical dashboard texts
-        tempVal.innerText = tCelsius;
-        kelvinVal.innerText = tKelvin.toFixed(2);
-        volumeVal.innerText = currentVolume.toFixed(2);
+        // Dashboard Elements
+        const dashP = document.getElementById('dashP');
+        const dashKpa = document.getElementById('dashKpa');
+        const dashV = document.getElementById('dashV');
+        const dashK = document.getElementById('dashK');
 
-        // 2. Physically resize the balloon graphic
-        // At 25°C, volume is exactly 1.00 unit and diameter is 160px.
-        // At 10°C, volume drops proportionally to ~0.95 units, shrinking the balloon.
-        const baseDiameter = 160; 
-        const currentDiameter = baseDiameter * currentVolume;
-        
-        liveBalloon.style.width = `${currentDiameter}px`;
-        liveBalloon.style.height = `${currentDiameter}px`;
-    }
+        // Physics Baseline Constants
+        const P0 = 1.00; // Baseline pressure in atm
+        const V0 = 1.00; // Baseline volume relative
+        const K0 = P0 * V0; // Constant k = 1.00
 
-    // Attach real-time input event listeners to the slider
-    tempSlider.addEventListener('input', updateSimulation);
-    
-    // Run once on load to establish baseline positions
-    updateSimulation();
-</script>
+        // Current Interactive State
+        let currentPressure = 1.00;
+        let currentVolume = 1.00;
+        let targetRadius = 0;
+        let currentRadius = 0;
 
-</head>
-</html>
+        // Particle System State
+        let particles = [];
+        const baseParticleCount = 40;
+
+        // Window & Canvas Resize Handler
+        function resizeCanvases() {
+            // Resize main simulation canvas
+            const simRect = simCanvas.parentElement.getBoundingClientRect();
+            simCanvas.width = simRect.width;
+            simCanvas.height = simRect.height;
+
+            // Resize graph canvas
+            const graphRect = graphCanvas.parentElement.getBoundingClientRect();
+            graphCanvas.width = graphRect.width;
+            graphCanvas.height = graphRect.height;
+
+            // Re-initialize particles to fill screen bounds correctly
+            initParticles();
+        }
+
+        // Initialize particles around the canvas
+        function initParticles() {
+            particles = [];
+            const count = Math.round(baseParticleCount * currentPressure);
+            for (let i = 0; i < count; i++) {
+                particles.push(createParticle());
+            }
+            particleCountText.innerText = particles.length;
+        }
+
+        function createParticle() {
+            const speed = (1.2 + Math.random() * 2.0) * Math.sqrt(currentPressure);
+            const angle = Math.random() * Math.PI * 2;
+            return {
+                x: Math.random() * simCanvas.width,
+                y: Math.random() * simCanvas.height,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                radius: 2.5 + Math.random() * 1.5,
+                pulse: Math.random() * Math.PI * 2
+            };
+        }
+
+        function updateParticles(cx, cy, balloonR) {
+            const count = Math.round(baseParticleCount * currentPressure);
+            particleCountText.innerText = count;
+
+            // Adjust particle array size smoothly
+            while (particles.length < count) particles.push(createParticle());
+            while (particles.length > count) particles.pop();
+
+            const speedMultiplier = Math.sqrt(currentPressure);
+
+            particles.forEach(p => {
+                p.pulse += 0.05;
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Bounce off canvas outer boundaries
+                if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
+                if (p.x + p.radius > simCanvas.width) { p.x = simCanvas.width - p.radius; p.vx *= -1; }
+                if (p.y - p.radius < 0) { p.y = p.radius; p.vy *= -1; }
+                if (p.y + p.radius > simCanvas.height) { p.y = simCanvas.height - p.radius; p.vy *= -1; }
+
+                // Elastic Bounce off Golden Balloon surface
+                const dx = p.x - cx;
+                const dy = p.y - cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const minDist = balloonR + p.radius + 2;
+
+                if (dist < minDist && dist > 0) {
+                    // Normal collision vector
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+
+                    // Reposition outside balloon boundary
+                    p.x = cx + nx * minDist;
+                    p.y = cy + ny * minDist;
+
+                    // Reflect velocity vector
+                    const dot = p.vx * nx + p.vy * ny;
+                    p.vx = (p.vx - 2 * dot * nx) * 0.98;
+                    p.vy = (p.vy - 2 * dot * ny) * 0.98;
+
+                    // Ensure minimum velocity maintenance
+                    const curSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    const targetSpeed = (1.5 + Math.random()) * speedMultiplier;
+                    if (curSpeed < 0.5) {
+                        p.vx = nx * targetSpeed;
+                        p.vy = ny * targetSpeed;
+                    }
+                }
+            });
+        }
+
+        function drawBalloon(cx, cy, r) {
+            simCtx.save();
+
+            // Ambient Golden Glow
+            simCtx.shadowColor = 'rgba(255, 215, 0, 0.4)';
+            simCtx.shadowBlur = 30;
+
+            // Main Balloon Body (Spherical Gradient)
+            const lightX = cx - r * 0.35;
+            const lightY = cy - r * 0.35;
+            const grad = simCtx.createRadialGradient(lightX, lightY, r * 0.05, cx, cy, r);
+
+            // Metallic Golden Color Ramp
+            grad.addColorStop(0.0, '#ffffff'); // Intense specular highlight spot
+            grad.addColorStop(0.12, '#fff6b3'); // Soft highlight
+            grad.addColorStop(0.35, '#facc15'); // Bright vibrant yellow gold
+            grad.addColorStop(0.65, '#ca8a04'); // Rich deep gold
+            grad.addColorStop(0.88, '#854d0e'); // Dark golden bronze shadow
+            grad.addColorStop(1.0, '#452604'); // Deep outline shadow
+
+            simCtx.beginPath();
+            simCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            simCtx.fillStyle = grad;
+            simCtx.fill();
+
+            // Glossy Specular Crescent Arc Highlight
+            simCtx.shadowBlur = 0;
+            simCtx.beginPath();
+            simCtx.ellipse(lightX, lightY, r * 0.25, r * 0.15, -Math.PI / 4, 0, Math.PI * 2);
+            simCtx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+            simCtx.fill();
+
+            // Balloon Tie / Knot at the bottom
+            const knotY = cy + r + 3;
+            const knotSize = Math.max(6, r * 0.12);
+
+            simCtx.fillStyle = '#a16207';
+            simCtx.beginPath();
+            simCtx.moveTo(cx - knotSize, knotY + knotSize * 1.2);
+            simCtx.lineTo(cx + knotSize, knotY + knotSize * 1.2);
+            simCtx.lineTo(cx + knotSize * 0.4, knotY);
+            simCtx.lineTo(cx - knotSize * 0.4, knotY);
+            simCtx.closePath();
+            simCtx.fill();
+
+            // Balloon String
+            simCtx.beginPath();
+            simCtx.moveTo(cx, knotY + knotSize * 1.2);
+            simCtx.bezierCurveTo(cx - 8, knotY + knotSize * 3, cx + 12, knotY + knotSize * 5, cx - 2, knotY + knotSize * 7);
+            simCtx.strokeStyle = 'rgba(217, 119, 6, 0.6)';
+            simCtx.lineWidth = 1.8;
+            simCtx.stroke();
+
+            simCtx.restore();
+        }
+
+        function drawPressureArrows(cx, cy, r) {
+            // Draw inward force vectors representing pressure proportional to P
+            const arrowCount = 12;
+            const arrowLength = 15 + currentPressure * 10;
+            const distanceOffset = r + 14 + (Math.sin(Date.now() * 0.006) * 3);
+
+            simCtx.save();
+            simCtx.strokeStyle = `rgba(56, 189, 248, ${Math.min(0.8, 0.2 + currentPressure * 0.25)})`;
+            simCtx.fillStyle = `rgba(56, 189, 248, ${Math.min(0.8, 0.2 + currentPressure * 0.25)})`;
+            simCtx.lineWidth = 2;
+
+            for (let i = 0; i < arrowCount; i++) {
+                const angle = (i / arrowCount) * Math.PI * 2;
+                
+                // Outer point moving inward
+                const startX = cx + Math.cos(angle) * (distanceOffset + arrowLength);
+                const startY = cy + Math.sin(angle) * (distanceOffset + arrowLength);
+                
+                // Tip pointing toward balloon surface
+                const endX = cx + Math.cos(angle) * distanceOffset;
+                const endY = cy + Math.sin(angle) * distanceOffset;
+
+                // Line stem
+                simCtx.beginPath();
+                simCtx.moveTo(startX, startY);
+                simCtx.lineTo(endX, endY);
+                simCtx.stroke();
+
+                // Arrowhead
+                const headLen = 6;
+                simCtx.beginPath();
+                simCtx.moveTo(endX, endY);
+                simCtx.lineTo(
+                    endX + headLen * Math.cos(angle + Math.PI - 0.5),
+                    endY + headLen * Math.sin(angle + Math.PI - 0.5)
+                );
+                simCtx.lineTo(
+                    endX + headLen * Math.cos(angle + Math.PI + 0.5),
+                    endY + headLen * Math.sin(angle + Math.PI + 0.5)
+                );
+                simCtx.closePath();
+                simCtx.fill();
+            }
+
+            simCtx.restore();
+        }
+
+        function drawPVGraph() {
+            const w = graphCanvas.width;
+            const h = graphCanvas.height;
+
+            graphCtx.clearRect(0, 0, w, h);
+
+            const padLeft = 35;
+            const padBottom = 25;
+            const padTop = 15;
+            const padRight = 15;
+
+            const graphW = w - padLeft - padRight;
+            const graphH = h - padTop - padBottom;
+
+            // Draw Grid Lines
+            graphCtx.strokeStyle = '#1e293b';
+            graphCtx.lineWidth = 1;
+
+            for (let i = 0; i <= 4; i++) {
+                const y = padTop + (graphH / 4) * i;
+                graphCtx.beginPath();
+                graphCtx.moveTo(padLeft, y);
+                graphCtx.lineTo(w - padRight, y);
+                graphCtx.stroke();
+            }
+
+            // Axes
+            graphCtx.strokeStyle = '#475569';
+            graphCtx.lineWidth = 1.5;
+            graphCtx.beginPath();
+            graphCtx.moveTo(padLeft, padTop);
+            graphCtx.lineTo(padLeft, h - padBottom);
+            graphCtx.lineTo(w - padRight, h - padBottom);
+            graphCtx.stroke();
+
+            // Axis Labels
+            graphCtx.fillStyle = '#94a3b8';
+            graphCtx.font = '10px sans-serif';
+            graphCtx.fillText('V (Volume)', padLeft + 5, padTop + 10);
+            graphCtx.fillText('P (Pressure)', w - padRight - 55, h - padBottom - 6);
+
+            // Range parameters for mapping
+            const minP = 0.2;
+            const maxP = 3.2;
+            const minV = 0.2;
+            const maxV = 4.2;
+
+            function mapX(pVal) {
+                return padLeft + ((pVal - minP) / (maxP - minP)) * graphW;
+            }
+            function mapY(vVal) {
+                return (h - padBottom) - ((vVal - minV) / (maxV - minV)) * graphH;
+            }
+
+            // Draw Theoretical Hyperbola Curve (P * V = 1)
+            graphCtx.beginPath();
+            graphCtx.strokeStyle = '#facc15';
+            graphCtx.lineWidth = 2.5;
+
+            let started = false;
+            for (let pStep = minP; pStep <= maxP; pStep += 0.02) {
+                const vStep = K0 / pStep;
+                const gx = mapX(pStep);
+                const gy = mapY(vStep);
+
+                if (!started) {
+                    graphCtx.moveTo(gx, gy);
+                    started = true;
+                } else {
+                    graphCtx.lineTo(gx, gy);
+                }
+            }
+            graphCtx.stroke();
+
+            // Draw Current State Point
+            const curGx = mapX(currentPressure);
+            const curGy = mapY(currentVolume);
+
+            // Dashed projection lines to axes
+            graphCtx.setLineDash([3, 3]);
+            graphCtx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+            graphCtx.lineWidth = 1;
+
+            graphCtx.beginPath();
+            graphCtx.moveTo(curGx, h - padBottom);
+            graphCtx.lineTo(curGx, curGy);
+            graphCtx.lineTo(padLeft, curGy);
+            graphCtx.stroke();
+            graphCtx.setLineDash([]);
+
+            // Pulsing point ring
+            graphCtx.beginPath();
+            graphCtx.arc(curGx, curGy, 6, 0, Math.PI * 2);
+            graphCtx.fillStyle = '#38bdf8';
+            graphCtx.fill();
+
+            graphCtx.beginPath();
+            graphCtx.arc(curGx, curGy, 9, 0, Math.PI * 2);
+            graphCtx.strokeStyle = 'rgba(250, 204, 21, 0.8)';
+            graphCtx.lineWidth = 2;
+            graphCtx.stroke();
+        }
+
+        function animate() {
+            // Smoothly interpolate current radius toward target 3D scaled radius
+            currentRadius += (targetRadius - currentRadius) * 0.12;
+
+            const w = simCanvas.width;
+            const h = simCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+
+            // Clear main canvas background
+            simCtx.clearRect(0, 0, w, h);
+
+            // Draw particles background/foreground bouncing off balloon
+            updateParticles(cx, cy, currentRadius);
+
+            // Render particles
+            simCtx.save();
+            particles.forEach(p => {
+                simCtx.beginPath();
+                simCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                simCtx.fillStyle = `rgba(56, 189, 248, ${0.5 + Math.sin(p.pulse) * 0.2})`;
+                simCtx.fill();
+            });
+            simCtx.restore();
+
+            // Draw pressure compression force vectors
+            drawPressureArrows(cx, cy, currentRadius);
+
+            // Draw central 3D Golden Balloon
+            drawBalloon(cx, cy, currentRadius);
+
+            // Draw live Graph update
+            drawPVGraph();
+
+            requestAnimationFrame(animate);
+        }
+
+        function updatePhysicsCalculations() {
+            currentPressure = parseFloat(pressureSlider.value);
+            
+            // Calculate Volume via Boyle's Law: V = (P0 * V0) / P
+            currentVolume = (P0 * V0) / currentPressure;
+
+            // Pressure in kilopascals (1 atm = 101.325 kPa)
+            const kpaVal = currentPressure * 101.325;
+
+            // Update Slider Text Displays
+            sliderPressureVal.innerText = currentPressure.toFixed(2);
+            sliderKpaVal.innerText = kpaVal.toFixed(1);
+
+            // Update Dashboard Cards
+            dashP.innerText = currentPressure.toFixed(2);
+            dashKpa.innerText = `${kpaVal.toFixed(1)} kPa`;
+            dashV.innerText = currentVolume.toFixed(2);
+            dashK.innerText = (currentPressure * currentVolume).toFixed(2);
+
+            // 3D Volumetric Radius Calculation: Radius scales with Math.cbrt(Volume)
+            const baseRadius = Math.min(simCanvas.width, simCanvas.height) * 0.22;
+            targetRadius = baseRadius * Math.cbrt(currentVolume);
+        }
+
+        // Preset button trigger handler
+        function setPressurePreset(val) {
+            pressureSlider.value = val;
+            updatePhysicsCalculations();
+        }
+
+        // Setup Event Listeners
+        pressureSlider.addEventListener('input', updatePhysicsCalculations);
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+            updatePhysicsCalculations();
+        });
